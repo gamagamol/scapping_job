@@ -5,6 +5,7 @@ class BehavoxSpiderSpider(scrapy.Spider):
     name = "behavox_spider"
     allowed_domains = ["job-boards.greenhouse.io"]
     start_urls = ["https://job-boards.greenhouse.io/behavox"]
+    # start_urls = ["https://job-boards.greenhouse.io/remotecom"] another link for testcases
     page_number = 1
     
 
@@ -37,6 +38,7 @@ class BehavoxSpiderSpider(scrapy.Spider):
     
             if int(count_page) >= self.page_number:
                 self.page_number += 1
+                # next_page_url = f"https://job-boards.greenhouse.io/remotecom?page={self.page_number}" another link for testcases
                 next_page_url = f"https://job-boards.greenhouse.io/behavox?page={self.page_number}"
                 yield scrapy.Request(url=next_page_url, callback=self.parse)
             
