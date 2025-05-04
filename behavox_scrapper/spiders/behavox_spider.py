@@ -5,9 +5,10 @@ class BehavoxSpiderSpider(scrapy.Spider):
     name = "behavox_spider"
     allowed_domains = ["job-boards.greenhouse.io"]
     start_urls = ["https://job-boards.greenhouse.io/behavox"]
+    page_number = 1
+    
 
     def parse(self, response):
-        all_jobs = []
         jobs_per_dep = response.css(".job-posts--table--department")
         for job_per_dept in jobs_per_dep:
             dep = job_per_dept.css(".job-posts--department-path p::text").get()
@@ -27,9 +28,17 @@ class BehavoxSpiderSpider(scrapy.Spider):
                     'job_location': job_location
                 }
                 
-                all_jobs.append(job_data)
-                
-        return all_jobs
+                yield job_data 
+        
+        pagination_active=response.css(".pagination-wrapper").get()
+        
+        if pagination_active is not None:
+            count_page = response.css(".pagination-wrapper ul li button::text").getall()[-1]
+    
+            if int(count_page) >= self.page_number:
+                self.page_number += 1
+                next_page_url = f"https://job-boards.greenhouse.io/behavox?page={self.page_number}"
+                yield scrapy.Request(url=next_page_url, callback=self.parse)
             
         
         
